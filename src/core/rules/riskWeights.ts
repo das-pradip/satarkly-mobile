@@ -36,6 +36,11 @@ export const RISK_COMBINATION_RULES: RiskCombinationRule[] = [
     reason: 'OTP request combined with urgency is a strong scam signal.',
   },
   {
+    requiredFlags: ['fake_verification', 'urgency'],
+    bonus: 20,
+    reason: 'Verification request combined with urgency should be treated as suspicious.',
+  },
+  {
     requiredFlags: ['pin_request', 'refund_trap'],
     bonus: 10,
     reason: 'UPI PIN request to receive refund/money is highly risky.',
