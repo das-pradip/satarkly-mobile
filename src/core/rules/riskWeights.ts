@@ -10,7 +10,7 @@ export const RISK_WEIGHTS: Record<RedFlag, number> = {
   payment_request: 20,
   refund_trap: 18,
   job_registration_fee: 18,
-  fake_verification: 10,
+  fake_verification: 20,
   apk_download: 28,
   too_good_to_be_true: 12,
   fear_pressure: 15,
@@ -41,9 +41,19 @@ export const RISK_COMBINATION_RULES: RiskCombinationRule[] = [
     reason: 'Verification request combined with urgency should be treated as suspicious.',
   },
   {
+    requiredFlags: ['fake_authority', 'courier_seizure_threat', 'secrecy_instruction'],
+    bonus: 15,
+    reason: 'Authority threat plus parcel/courier story and secrecy is a strong digital arrest pattern.',
+  },
+  {
     requiredFlags: ['pin_request', 'refund_trap'],
-    bonus: 10,
+    bonus: 15,
     reason: 'UPI PIN request to receive refund/money is highly risky.',
+  },
+  {
+    requiredFlags: ['fake_authority', 'identity_threat', 'secrecy_instruction'],
+    bonus: 15,
+    reason: 'Authority threat plus identity issue and secrecy is a strong digital arrest pattern.',
   },
   {
     requiredFlags: ['payment_request', 'fake_authority'],

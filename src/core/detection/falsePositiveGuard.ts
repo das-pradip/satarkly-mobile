@@ -119,6 +119,19 @@ export function applyFalsePositiveGuard({
   if (looksLikeOfficialAppAdvice) {
     adjustedScore -= 10;
   }
+  const looksLikeWeakPaymentVerification =
+    hasAnyKeyword(message, [
+      'payment could not be verified',
+      'payment not verified',
+      'please check your account',
+    ]) &&
+    !hasHighRiskCredentialRequest &&
+    !flags.includes('suspicious_link') &&
+    !flags.includes('payment_request') &&
+    !flags.includes('apk_download');
 
+  if (looksLikeWeakPaymentVerification) {
+    adjustedScore -= 15;
+  }
   return clampScore(adjustedScore);
 }

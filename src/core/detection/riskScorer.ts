@@ -19,7 +19,18 @@ export function calculateRiskScore(flags: RedFlag[]): number {
     return hasAllRequiredFlags ? total + rule.bonus : total;
   }, 0);
 
-  return clampScore(baseScore + combinationBonus);
+  const weakVerificationBonus =
+    flags.includes('fake_verification') &&
+      !flags.includes('urgency') &&
+      !flags.includes('payment_request') &&
+      !flags.includes('otp_request') &&
+      !flags.includes('pin_request') &&
+      !flags.includes('suspicious_link') &&
+      !flags.includes('apk_download')
+      ? 10
+      : 0;
+
+  return clampScore(baseScore + combinationBonus + weakVerificationBonus);
 }
 
 export function getRiskLevel(score: number): RiskLevel {
