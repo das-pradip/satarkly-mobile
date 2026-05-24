@@ -36,6 +36,7 @@ export type RedFlag =
   | 'suspicious_link'
   | 'fake_authority'
   | 'payment_request'
+  | 'money_request_caution'
   | 'refund_trap'
   | 'job_registration_fee'
   | 'fake_verification'

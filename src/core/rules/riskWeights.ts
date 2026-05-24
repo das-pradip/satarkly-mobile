@@ -8,6 +8,7 @@ export const RISK_WEIGHTS: Record<RedFlag, number> = {
   suspicious_link: 18,
   fake_authority: 20,
   payment_request: 20,
+  money_request_caution: 30,
   refund_trap: 18,
   job_registration_fee: 18,
   fake_verification: 20,
@@ -89,6 +90,41 @@ export const RISK_COMBINATION_RULES: RiskCombinationRule[] = [
     requiredFlags: ['courier_seizure_threat', 'payment_request'],
     bonus: 8,
     reason: 'Courier seizure story plus payment demand is a common parcel scam pattern.',
+  },
+  {
+    requiredFlags: ['money_request_caution', 'otp_request'],
+    bonus: 30,
+    reason: 'Money request combined with OTP request is highly risky.',
+  },
+  {
+    requiredFlags: ['money_request_caution', 'pin_request'],
+    bonus: 30,
+    reason: 'Money request combined with PIN request is highly risky.',
+  },
+  {
+    requiredFlags: ['money_request_caution', 'suspicious_link'],
+    bonus: 25,
+    reason: 'Money request combined with a link is a strong scam signal.',
+  },
+  {
+    requiredFlags: ['money_request_caution', 'fake_authority'],
+    bonus: 25,
+    reason: 'Money request combined with fake authority is highly risky.',
+  },
+  {
+    requiredFlags: ['money_request_caution', 'apk_download'],
+    bonus: 25,
+    reason: 'Money request combined with app/APK download is highly risky.',
+  },
+  {
+    requiredFlags: ['money_request_caution', 'refund_trap'],
+    bonus: 25,
+    reason: 'Money request combined with refund/cashback trap is highly risky.',
+  },
+  {
+    requiredFlags: ['money_request_caution', 'secrecy_instruction'],
+    bonus: 20,
+    reason: 'Money request combined with secrecy instruction is risky.',
   },
 ];
 

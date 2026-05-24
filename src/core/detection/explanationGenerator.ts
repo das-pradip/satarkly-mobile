@@ -42,6 +42,10 @@ export function generateSafeAction(
     return 'Do not share OTP, UPI PIN, ATM PIN, password, CVV, or verification code. No genuine bank or support agent will ask for these.';
   }
 
+  if (flags.includes('money_request_caution')) {
+    return 'Before sending money, call the person using a trusted saved number. Do not rely only on chat messages, especially if the request is urgent.';
+  }
+
   if (flags.includes('apk_download')) {
     return 'Do not install APK files or unknown apps from links. Install apps only from trusted app stores.';
   }
