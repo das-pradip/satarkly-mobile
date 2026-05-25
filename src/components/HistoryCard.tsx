@@ -2,11 +2,13 @@ import {
   StyleSheet,
   Text,
   TouchableOpacity,
+  useWindowDimensions,
   View,
 } from 'react-native';
 
 import { getTheme } from './ResultCard';
 import { FeedbackValue, ScanHistoryItem } from '../types/history.types';
+import { isSmallScreen } from '../utils/responsive';
 
 function getFeedbackText(feedback: FeedbackValue | null): string {
   if (feedback === 'correct') return 'Marked correct';
@@ -34,10 +36,13 @@ export function HistoryCard({
   history,
   onClearHistory,
 }: HistoryCardProps) {
+  const { width } = useWindowDimensions();
+  const isMobile = isSmallScreen(width);
+
   return (
     <View style={styles.historyCard}>
       <View style={styles.historyHeader}>
-        <View>
+        <View style={styles.historyHeaderText}>
           <Text style={styles.historyTitle}>Recent checks</Text>
           <Text style={styles.historySubtitle}>
             Your checks stay private on this device.
@@ -61,16 +66,27 @@ export function HistoryCard({
 
           return (
             <View key={item.id} style={styles.historyItem}>
-              <View style={styles.historyItemTop}>
+              <View
+                style={[
+                  styles.historyItemTop,
+                  isMobile && styles.historyItemTopMobile,
+                ]}
+              >
                 <Text style={[styles.historyRisk, { color: itemTheme.banner }]}>
                   {itemTheme.emoji} {item.result.riskLevel}
                 </Text>
+
                 <Text style={styles.historyScore}>{item.result.riskScore}/100</Text>
               </View>
 
               <Text style={styles.historyPreview}>{item.messagePreview}</Text>
 
-              <View style={styles.historyMetaRow}>
+              <View
+                style={[
+                  styles.historyMetaRow,
+                  isMobile && styles.historyMetaRowMobile,
+                ]}
+              >
                 <Text style={styles.historyMeta}>{formatDateTime(item.createdAt)}</Text>
                 <Text style={styles.historyMeta}>{getFeedbackText(item.feedback)}</Text>
               </View>
@@ -85,32 +101,36 @@ export function HistoryCard({
 const styles = StyleSheet.create({
   historyCard: {
     backgroundColor: '#ffffff',
-    borderRadius: 24,
-    padding: 18,
-    marginTop: 18,
+    borderRadius: 20,
+    padding: 14,
+    marginTop: 16,
   },
   historyHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: 10,
     alignItems: 'flex-start',
-    marginBottom: 12,
+    marginBottom: 10,
+  },
+  historyHeaderText: {
+    flex: 1,
   },
   historyTitle: {
     color: '#0f172a',
-    fontSize: 20,
+    fontSize: 18,
     fontWeight: '900',
   },
   historySubtitle: {
     color: '#64748b',
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: '600',
     marginTop: 3,
   },
   clearHistoryText: {
     color: '#dc2626',
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '900',
+    paddingTop: 3,
   },
   emptyHistoryText: {
     color: '#64748b',
@@ -120,40 +140,47 @@ const styles = StyleSheet.create({
   historyItem: {
     borderTopColor: '#e2e8f0',
     borderTopWidth: 1,
-    paddingTop: 12,
-    marginTop: 12,
+    paddingTop: 11,
+    marginTop: 11,
   },
   historyItemTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
+    gap: 10,
     marginBottom: 6,
   },
+  historyItemTopMobile: {
+    alignItems: 'flex-start',
+  },
   historyRisk: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '900',
     flex: 1,
   },
   historyScore: {
     color: '#0f172a',
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: '900',
   },
   historyPreview: {
     color: '#334155',
-    fontSize: 14,
-    lineHeight: 20,
+    fontSize: 13,
+    lineHeight: 19,
     fontWeight: '600',
   },
   historyMetaRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
-    marginTop: 8,
+    gap: 10,
+    marginTop: 7,
+  },
+  historyMetaRowMobile: {
+    flexDirection: 'column',
+    gap: 2,
   },
   historyMeta: {
     color: '#64748b',
-    fontSize: 12,
+    fontSize: 11,
     fontWeight: '700',
   },
 });
