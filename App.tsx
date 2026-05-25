@@ -5,15 +5,16 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useWindowDimensions,
   View,
 } from 'react-native';
 
-import { HistoryCard } from './src/components/HistoryCard';
 import { MessageInputCard } from './src/components/MessageInputCard';
 import { PrivacyNoticeCard } from './src/components/PrivacyNoticeCard';
 import { ResultCard } from './src/components/ResultCard';
 import { analyzeMessage } from './src/core/detection/scamDetectionEngine';
+import { HistoryScreen } from './src/screens/HistoryScreen';
 import { DetectionResult } from './src/types/detection.types';
 import { FeedbackValue, ScanHistoryItem } from './src/types/history.types';
 import {
@@ -24,6 +25,8 @@ import {
 } from './src/utils/historyStorage';
 import { CONTENT_MAX_WIDTH, getScreenPadding } from './src/utils/responsive';
 
+type AppScreen = 'check' | 'history';
+
 export default function App() {
   const [message, setMessage] = useState('');
   const [result, setResult] = useState<DetectionResult | null>(null);
@@ -31,6 +34,7 @@ export default function App() {
   const [currentScanId, setCurrentScanId] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [inputError, setInputError] = useState('');
+  const [currentScreen, setCurrentScreen] = useState<AppScreen>('check');
 
   const { width } = useWindowDimensions();
   const screenPadding = getScreenPadding(width);
@@ -91,6 +95,59 @@ export default function App() {
     setFeedbackMessage('');
   }
 
+  function renderCheckScreen() {
+    return (
+      <>
+        <View style={styles.header}>
+          <View style={styles.headerTopRow}>
+            <View style={styles.headerTextBox}>
+              <Text style={styles.appName}>Satarkly</Text>
+              <Text style={styles.tagline}>Check before you click.</Text>
+            </View>
+
+            <TouchableOpacity
+              style={styles.historyButton}
+              onPress={() => setCurrentScreen('history')}
+            >
+              <Text style={styles.historyButtonText}>History</Text>
+            </TouchableOpacity>
+          </View>
+
+          <Text style={styles.description}>
+            Paste a suspicious SMS, WhatsApp, or online message. Satarkly helps
+            you decide whether to stop, verify, or stay careful.
+          </Text>
+        </View>
+
+        <PrivacyNoticeCard />
+
+        <MessageInputCard
+          message={message}
+          inputError={inputError}
+          onChangeMessage={(value) => {
+            setMessage(value);
+
+            if (inputError.length > 0) {
+              setInputError('');
+            }
+          }}
+          onCheckMessage={handleCheckMessage}
+          onClearInput={handleClearInput}
+        />
+
+        {result && (
+          <ResultCard
+            result={result}
+            feedbackMessage={feedbackMessage}
+            onFeedback={handleFeedback}
+          />
+        )}
+
+        
+      </>
+    );
+  }
+
   return (
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
@@ -102,40 +159,15 @@ export default function App() {
         ]}
       >
         <View style={styles.content}>
-          <View style={styles.header}>
-            <Text style={styles.appName}>Satarkly</Text>
-            <Text style={styles.tagline}>Check before you click.</Text>
-            <Text style={styles.description}>
-              Paste a suspicious SMS, WhatsApp, or online message. Satarkly helps
-              you decide whether to stop, verify, or stay careful.
-            </Text>
-          </View>
-
-          <PrivacyNoticeCard />
-
-          <MessageInputCard
-            message={message}
-            inputError={inputError}
-            onChangeMessage={(value) => {
-              setMessage(value);
-
-              if (inputError.length > 0) {
-                setInputError('');
-              }
-            }}
-            onCheckMessage={handleCheckMessage}
-            onClearInput={handleClearInput}
-          />
-
-          {result && (
-            <ResultCard
-              result={result}
-              feedbackMessage={feedbackMessage}
-              onFeedback={handleFeedback}
+          {currentScreen === 'history' ? (
+            <HistoryScreen
+              history={history}
+              onClearHistory={handleClearHistory}
+              onBackToCheck={() => setCurrentScreen('check')}
             />
+          ) : (
+            renderCheckScreen()
           )}
-
-          <HistoryCard history={history} onClearHistory={handleClearHistory} />
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -158,6 +190,15 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 20,
   },
+  headerTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    gap: 12,
+    alignItems: 'flex-start',
+  },
+  headerTextBox: {
+    flex: 1,
+  },
   appName: {
     color: '#ffffff',
     fontSize: 38,
@@ -175,5 +216,17 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     marginTop: 12,
+  },
+  historyButton: {
+    backgroundColor: '#e2e8f0',
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    marginTop: 4,
+  },
+  historyButtonText: {
+    color: '#0f172a',
+    fontSize: 13,
+    fontWeight: '900',
   },
 });
