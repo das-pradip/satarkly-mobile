@@ -8,6 +8,7 @@ import {
 
 interface MessageInputCardProps {
   message: string;
+  inputError: string;
   onChangeMessage: (value: string) => void;
   onCheckMessage: () => void;
   onClearInput: () => void;
@@ -15,6 +16,7 @@ interface MessageInputCardProps {
 
 export function MessageInputCard({
   message,
+  inputError,
   onChangeMessage,
   onCheckMessage,
   onClearInput,
@@ -31,6 +33,10 @@ export function MessageInputCard({
         value={message}
         onChangeText={onChangeMessage}
       />
+
+      {inputError.length > 0 && (
+        <Text style={styles.errorText}>{inputError}</Text>
+      )}
 
       <View style={styles.buttonRow}>
         <TouchableOpacity style={styles.primaryButton} onPress={onCheckMessage}>
@@ -100,5 +106,11 @@ const styles = StyleSheet.create({
     color: '#0f172a',
     fontSize: 15,
     fontWeight: '900',
+  },
+  errorText: {
+    color: '#dc2626',
+    fontSize: 13,
+    fontWeight: '800',
+    marginTop: 8,
   },
 });

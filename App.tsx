@@ -5,11 +5,13 @@ import {
   StatusBar,
   StyleSheet,
   Text,
+  useWindowDimensions,
   View,
 } from 'react-native';
 
 import { HistoryCard } from './src/components/HistoryCard';
 import { MessageInputCard } from './src/components/MessageInputCard';
+import { PrivacyNoticeCard } from './src/components/PrivacyNoticeCard';
 import { ResultCard } from './src/components/ResultCard';
 import { analyzeMessage } from './src/core/detection/scamDetectionEngine';
 import { DetectionResult } from './src/types/detection.types';
@@ -20,6 +22,7 @@ import {
   saveScanResult,
   updateScanFeedback,
 } from './src/utils/historyStorage';
+import { CONTENT_MAX_WIDTH, getScreenPadding } from './src/utils/responsive';
 
 export default function App() {
   const [message, setMessage] = useState('');
@@ -27,6 +30,10 @@ export default function App() {
   const [history, setHistory] = useState<ScanHistoryItem[]>([]);
   const [currentScanId, setCurrentScanId] = useState<string | null>(null);
   const [feedbackMessage, setFeedbackMessage] = useState('');
+  const [inputError, setInputError] = useState('');
+
+  const { width } = useWindowDimensions();
+  const screenPadding = getScreenPadding(width);
 
   useEffect(() => {
     async function loadHistoryOnStart() {
@@ -38,7 +45,19 @@ export default function App() {
   }, []);
 
   async function handleCheckMessage() {
-    const analysis = analyzeMessage({ message });
+    const trimmedMessage = message.trim();
+
+    if (trimmedMessage.length === 0) {
+      setInputError('Please paste a message before checking.');
+      setResult(null);
+      setCurrentScanId(null);
+      setFeedbackMessage('');
+      return;
+    }
+
+    setInputError('');
+
+    const analysis = analyzeMessage({ message: trimmedMessage });
     setResult(analysis);
     setFeedbackMessage('');
 
@@ -52,6 +71,7 @@ export default function App() {
     setResult(null);
     setCurrentScanId(null);
     setFeedbackMessage('');
+    setInputError('');
   }
 
   async function handleFeedback(feedback: FeedbackValue) {
@@ -75,32 +95,48 @@ export default function App() {
     <SafeAreaView style={styles.safeArea}>
       <StatusBar barStyle="light-content" />
 
-      <ScrollView contentContainerStyle={styles.container}>
-        <View style={styles.header}>
-          <Text style={styles.appName}>Satarkly</Text>
-          <Text style={styles.tagline}>Check before you click.</Text>
-          <Text style={styles.description}>
-            Paste a suspicious SMS, WhatsApp, or online message. Satarkly helps
-            you decide whether to stop, verify, or stay careful.
-          </Text>
-        </View>
+      <ScrollView
+        contentContainerStyle={[
+          styles.container,
+          { padding: screenPadding },
+        ]}
+      >
+        <View style={styles.content}>
+          <View style={styles.header}>
+            <Text style={styles.appName}>Satarkly</Text>
+            <Text style={styles.tagline}>Check before you click.</Text>
+            <Text style={styles.description}>
+              Paste a suspicious SMS, WhatsApp, or online message. Satarkly helps
+              you decide whether to stop, verify, or stay careful.
+            </Text>
+          </View>
 
-        <MessageInputCard
-          message={message}
-          onChangeMessage={setMessage}
-          onCheckMessage={handleCheckMessage}
-          onClearInput={handleClearInput}
-        />
+          <PrivacyNoticeCard />
 
-        {result && (
-          <ResultCard
-            result={result}
-            feedbackMessage={feedbackMessage}
-            onFeedback={handleFeedback}
+          <MessageInputCard
+            message={message}
+            inputError={inputError}
+            onChangeMessage={(value) => {
+              setMessage(value);
+
+              if (inputError.length > 0) {
+                setInputError('');
+              }
+            }}
+            onCheckMessage={handleCheckMessage}
+            onClearInput={handleClearInput}
           />
-        )}
 
-        <HistoryCard history={history} onClearHistory={handleClearHistory} />
+          {result && (
+            <ResultCard
+              result={result}
+              feedbackMessage={feedbackMessage}
+              onFeedback={handleFeedback}
+            />
+          )}
+
+          <HistoryCard history={history} onClearHistory={handleClearHistory} />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -112,8 +148,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#0f172a',
   },
   container: {
-    padding: 18,
     paddingBottom: 40,
+  },
+  content: {
+    width: '100%',
+    maxWidth: CONTENT_MAX_WIDTH,
+    alignSelf: 'center',
   },
   header: {
     marginBottom: 20,
@@ -135,6 +175,5 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     marginTop: 12,
-    maxWidth: 760,
   },
 });
