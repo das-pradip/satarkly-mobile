@@ -175,21 +175,6 @@ function SatarklyApp() {
             </Text>
           </View>
         </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.menuItem, { backgroundColor: colors.cardBackground }]}
-          onPress={toggleTheme}
-        >
-          <Text style={styles.menuIcon}>{mode === 'dark' ? '☀️' : '🌙'}</Text>
-          <View style={styles.menuTextBox}>
-            <Text style={[styles.menuTitle, { color: colors.primaryText }]}>
-              {mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
-            </Text>
-            <Text style={[styles.menuSubtitle, { color: colors.mutedText }]}>
-              Change app appearance
-            </Text>
-          </View>
-        </TouchableOpacity>
       </View>
     );
   }
@@ -213,17 +198,34 @@ function SatarklyApp() {
               </Text>
             </View>
 
-            <TouchableOpacity
-              style={[
-                styles.menuButton,
-                { backgroundColor: colors.buttonBackground },
-              ]}
-              onPress={() => setIsMenuOpen((currentValue) => !currentValue)}
-            >
-              <Text style={[styles.menuButtonText, { color: colors.buttonText }]}>
-                {isMenuOpen ? 'Close' : '☰ Menu'}
-              </Text>
-            </TouchableOpacity>
+            <View style={styles.headerActionRow}>
+              <TouchableOpacity
+                style={[
+                  styles.themeToggleButton,
+                  {
+                    backgroundColor: colors.buttonBackground,
+                    borderColor: colors.border,
+                  },
+                ]}
+                onPress={toggleTheme}
+              >
+                <Text style={styles.themeToggleIcon}>
+                  {mode === 'dark' ? '☀️' : '🌙'}
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[
+                  styles.menuButton,
+                  { backgroundColor: colors.buttonBackground },
+                ]}
+                onPress={() => setIsMenuOpen((currentValue) => !currentValue)}
+              >
+                <Text style={[styles.menuButtonText, { color: colors.buttonText }]}>
+                  {isMenuOpen ? 'Close' : '☰ Menu'}
+                </Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <Text
@@ -350,11 +352,27 @@ const styles = StyleSheet.create({
     lineHeight: 21,
     marginTop: 12,
   },
+  headerActionRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    marginTop: 3,
+  },
+  themeToggleButton: {
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+  },
+  themeToggleIcon: {
+    fontSize: 18,
+  },
   menuButton: {
     borderRadius: 16,
     paddingVertical: 10,
     paddingHorizontal: 13,
-    marginTop: 3,
   },
   menuButtonText: {
     fontSize: 13,
