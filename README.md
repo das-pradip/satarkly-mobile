@@ -196,6 +196,23 @@ Current feedback is saved locally on the device. In future versions, anonymized 
 
 ---
 
+## Share Result Feature
+
+Satarkly allows users to share a scam-check result with family, friends, or groups.
+
+Current share behavior:
+
+- Shares risk level
+- Shares scam category
+- Shares score and confidence
+- Shares top warning reasons
+- Shares safe action
+- Adds Satarkly safety disclaimer
+- Excludes the original message by default for privacy
+- Allows user to choose: Include original message Yes/No
+
+This helps users warn others without exposing private message content by default.
+
 ## Empty Input Validation
 
 If the user clicks Check Message without pasting any message, Satarkly shows:
@@ -422,9 +439,10 @@ Known limitations:
 - [x] Add separate History screen
 - [x] Add Safety Tips screen
 - [x] Add About Satarkly screen
-- [ ] Add dark/light mode support
+- [x] Add dark/light mode support
 - [x] Improve small-screen polish
-- [ ] Add share result feature
+- [x] Add share result feature
+- [x] Add include-original-message privacy option for sharing
 - [ ] Add copy safe action feature
 
 ### Phase 3: Data & Accuracy
