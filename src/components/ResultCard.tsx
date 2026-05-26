@@ -8,6 +8,7 @@ import {
 import { DetectionResult, RedFlag, RiskLevel } from '../types/detection.types';
 import { FeedbackValue } from '../types/history.types';
 import { ShareResultBox } from './ShareResultBox';
+import { CopySafeActionButton } from './CopySafeActionButton';
 
 const redFlagUserText: Record<RedFlag, string> = {
   urgency: 'Creates pressure to act quickly',
@@ -149,6 +150,8 @@ export function ResultCard({
         <Text style={[styles.actionText, { color: theme.text }]}>
           {result.safeAction}
         </Text>
+
+        <CopySafeActionButton safeAction={result.safeAction} />
       </View>
 
       <ShareResultBox result={result} />
