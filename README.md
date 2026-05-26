@@ -213,6 +213,34 @@ Current share behavior:
 
 This helps users warn others without exposing private message content by default.
 
+---
+
+## Copy What To Do Feature
+
+Satarkly allows users to copy only the recommended safe action from a scan result.
+
+This is useful when a user wants to quickly send simple advice to a family member, friend, or group without sharing the full scan report.
+
+Current copy behavior:
+
+- Copies only the “What you should do now” advice
+- Does not copy the original suspicious message
+- Does not copy score, category, or private message content
+- Shows a confirmation after copying
+- Helps users paste the advice into WhatsApp, SMS, notes, or any other app
+
+Example:
+
+If Satarkly says:
+
+Do not share OTP, UPI PIN, ATM PIN, password, CVV, or verification code.
+
+The user can tap:
+
+Copy what to do
+
+Then paste the advice wherever needed.
+
 ## Empty Input Validation
 
 If the user clicks Check Message without pasting any message, Satarkly shows:
@@ -443,7 +471,8 @@ Known limitations:
 - [x] Improve small-screen polish
 - [x] Add share result feature
 - [x] Add include-original-message privacy option for sharing
-- [ ] Add copy safe action feature
+- [x] Add copy safe action feature
+- [x] Add copy what to do button
 
 ### Phase 3: Data & Accuracy
 
