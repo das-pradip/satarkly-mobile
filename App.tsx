@@ -14,6 +14,7 @@ import { MessageInputCard } from './src/components/MessageInputCard';
 import { PrivacyNoticeCard } from './src/components/PrivacyNoticeCard';
 import { ResultCard } from './src/components/ResultCard';
 import { analyzeMessage } from './src/core/detection/scamDetectionEngine';
+import { AboutScreen } from './src/screens/AboutScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
 import { SafetyTipsScreen } from './src/screens/SafetyTipsScreen';
 import { DetectionResult } from './src/types/detection.types';
@@ -27,7 +28,7 @@ import {
 } from './src/utils/historyStorage';
 import { CONTENT_MAX_WIDTH, getScreenPadding } from './src/utils/responsive';
 
-type AppScreen = 'check' | 'history' | 'safety';
+type AppScreen = 'check' | 'history' | 'safety' | 'about';
 
 export default function App() {
   const [message, setMessage] = useState('');
@@ -37,6 +38,7 @@ export default function App() {
   const [feedbackMessage, setFeedbackMessage] = useState('');
   const [inputError, setInputError] = useState('');
   const [currentScreen, setCurrentScreen] = useState<AppScreen>('check');
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const { width } = useWindowDimensions();
   const screenPadding = getScreenPadding(width);
@@ -107,6 +109,54 @@ export default function App() {
     }
   }
 
+  function openScreen(screen: AppScreen) {
+    setCurrentScreen(screen);
+    setIsMenuOpen(false);
+  }
+
+  function renderMenu() {
+    if (!isMenuOpen) {
+      return null;
+    }
+
+    return (
+      <View style={styles.menuCard}>
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => openScreen('safety')}
+        >
+          <Text style={styles.menuIcon}>🛡️</Text>
+          <View style={styles.menuTextBox}>
+            <Text style={styles.menuTitle}>Safety Tips</Text>
+            <Text style={styles.menuSubtitle}>Learn common scam safety rules</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => openScreen('history')}
+        >
+          <Text style={styles.menuIcon}>🕘</Text>
+          <View style={styles.menuTextBox}>
+            <Text style={styles.menuTitle}>Scan History</Text>
+            <Text style={styles.menuSubtitle}>Review checks saved on this device</Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.menuItem}
+          onPress={() => openScreen('about')}
+        >
+          <Text style={styles.menuIcon}>ℹ️</Text>
+          <View style={styles.menuTextBox}>
+            <Text style={styles.menuTitle}>About Satarkly</Text>
+            <Text style={styles.menuSubtitle}>Understand what Satarkly does</Text>
+          </View>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
   function renderCheckScreen() {
     return (
       <>
@@ -117,27 +167,22 @@ export default function App() {
               <Text style={styles.tagline}>Check before you click.</Text>
             </View>
 
-            <View style={styles.headerActions}>
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => setCurrentScreen('safety')}
-              >
-                <Text style={styles.headerButtonText}>Tips</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.headerButton}
-                onPress={() => setCurrentScreen('history')}
-              >
-                <Text style={styles.headerButtonText}>History</Text>
-              </TouchableOpacity>
-            </View>
+            <TouchableOpacity
+              style={styles.menuButton}
+              onPress={() => setIsMenuOpen((currentValue) => !currentValue)}
+            >
+              <Text style={styles.menuButtonText}>
+                {isMenuOpen ? 'Close' : '☰ Menu'}
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <Text style={styles.description}>
             Paste a suspicious SMS, WhatsApp, or online message. Satarkly helps
             you decide whether to stop, verify, or stay careful.
           </Text>
+
+          {renderMenu()}
         </View>
 
         <PrivacyNoticeCard />
@@ -163,8 +208,6 @@ export default function App() {
             onFeedback={handleFeedback}
           />
         )}
-
-
       </>
     );
   }
@@ -185,12 +228,16 @@ export default function App() {
               history={history}
               onClearHistory={handleClearHistory}
               onDeleteHistoryItem={handleDeleteHistoryItem}
-              onBackToCheck={() => setCurrentScreen('check')}
+              onBackToCheck={() => openScreen('check')}
             />
           )}
 
           {currentScreen === 'safety' && (
-            <SafetyTipsScreen onBackToCheck={() => setCurrentScreen('check')} />
+            <SafetyTipsScreen onBackToCheck={() => openScreen('check')} />
+          )}
+
+          {currentScreen === 'about' && (
+            <AboutScreen onBackToCheck={() => openScreen('check')} />
           )}
 
           {currentScreen === 'check' && renderCheckScreen()}
@@ -214,7 +261,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   header: {
-    marginBottom: 20,
+    marginBottom: 18,
   },
   headerTopRow: {
     flexDirection: 'row',
@@ -227,36 +274,68 @@ const styles = StyleSheet.create({
   },
   appName: {
     color: '#ffffff',
-    fontSize: 38,
+    fontSize: 34,
     fontWeight: '900',
     letterSpacing: 0.5,
   },
   tagline: {
     color: '#38bdf8',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: '800',
-    marginTop: 6,
+    marginTop: 5,
   },
   description: {
     color: '#cbd5e1',
-    fontSize: 15,
-    lineHeight: 22,
+    fontSize: 14,
+    lineHeight: 21,
     marginTop: 12,
   },
-  headerActions: {
-    flexDirection: 'row',
-    gap: 8,
-    marginTop: 4,
-  },
-  headerButton: {
+  menuButton: {
     backgroundColor: '#e2e8f0',
-    borderRadius: 14,
+    borderRadius: 16,
     paddingVertical: 10,
-    paddingHorizontal: 12,
+    paddingHorizontal: 13,
+    marginTop: 3,
   },
-  headerButtonText: {
+  menuButtonText: {
     color: '#0f172a',
     fontSize: 13,
     fontWeight: '900',
+  },
+  menuCard: {
+    backgroundColor: '#172033',
+    borderColor: '#263449',
+    borderWidth: 1,
+    borderRadius: 18,
+    padding: 8,
+    marginTop: 14,
+    gap: 8,
+  },
+  menuItem: {
+    backgroundColor: '#ffffff',
+    borderRadius: 15,
+    padding: 12,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 10,
+  },
+  menuIcon: {
+    fontSize: 20,
+    width: 28,
+    textAlign: 'center',
+  },
+  menuTextBox: {
+    flex: 1,
+  },
+  menuTitle: {
+    color: '#0f172a',
+    fontSize: 14,
+    fontWeight: '900',
+  },
+  menuSubtitle: {
+    color: '#64748b',
+    fontSize: 12,
+    fontWeight: '600',
+    marginTop: 2,
   },
 });
