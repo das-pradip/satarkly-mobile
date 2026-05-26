@@ -7,6 +7,7 @@ import {
 
 import { DetectionResult, RedFlag, RiskLevel } from '../types/detection.types';
 import { FeedbackValue } from '../types/history.types';
+import { ShareResultBox } from './ShareResultBox';
 
 const redFlagUserText: Record<RedFlag, string> = {
   urgency: 'Creates pressure to act quickly',
@@ -149,6 +150,8 @@ export function ResultCard({
           {result.safeAction}
         </Text>
       </View>
+
+      <ShareResultBox result={result} />
 
       <View style={styles.feedbackBox}>
         <Text style={styles.feedbackTitle}>Was this result helpful?</Text>
