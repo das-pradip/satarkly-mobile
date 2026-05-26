@@ -17,6 +17,7 @@ import { analyzeMessage } from './src/core/detection/scamDetectionEngine';
 import { AboutScreen } from './src/screens/AboutScreen';
 import { HistoryScreen } from './src/screens/HistoryScreen';
 import { SafetyTipsScreen } from './src/screens/SafetyTipsScreen';
+import { ThemeProvider, useAppTheme } from './src/theme/ThemeContext';
 import { DetectionResult } from './src/types/detection.types';
 import { FeedbackValue, ScanHistoryItem } from './src/types/history.types';
 import {
@@ -30,7 +31,7 @@ import { CONTENT_MAX_WIDTH, getScreenPadding } from './src/utils/responsive';
 
 type AppScreen = 'check' | 'history' | 'safety' | 'about';
 
-export default function App() {
+function SatarklyApp() {
   const [message, setMessage] = useState('');
   const [result, setResult] = useState<DetectionResult | null>(null);
   const [history, setHistory] = useState<ScanHistoryItem[]>([]);
@@ -42,6 +43,7 @@ export default function App() {
 
   const { width } = useWindowDimensions();
   const screenPadding = getScreenPadding(width);
+  const { colors, mode, toggleTheme } = useAppTheme();
 
   useEffect(() => {
     async function loadHistoryOnStart() {
@@ -120,37 +122,72 @@ export default function App() {
     }
 
     return (
-      <View style={styles.menuCard}>
+      <View
+        style={[
+          styles.menuCard,
+          {
+            backgroundColor: colors.brandSoft,
+            borderColor: colors.border,
+          },
+        ]}
+      >
         <TouchableOpacity
-          style={styles.menuItem}
+          style={[styles.menuItem, { backgroundColor: colors.cardBackground }]}
           onPress={() => openScreen('safety')}
         >
           <Text style={styles.menuIcon}>🛡️</Text>
           <View style={styles.menuTextBox}>
-            <Text style={styles.menuTitle}>Safety Tips</Text>
-            <Text style={styles.menuSubtitle}>Learn common scam safety rules</Text>
+            <Text style={[styles.menuTitle, { color: colors.primaryText }]}>
+              Safety Tips
+            </Text>
+            <Text style={[styles.menuSubtitle, { color: colors.mutedText }]}>
+              Learn common scam safety rules
+            </Text>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.menuItem}
+          style={[styles.menuItem, { backgroundColor: colors.cardBackground }]}
           onPress={() => openScreen('history')}
         >
           <Text style={styles.menuIcon}>🕘</Text>
           <View style={styles.menuTextBox}>
-            <Text style={styles.menuTitle}>Scan History</Text>
-            <Text style={styles.menuSubtitle}>Review checks saved on this device</Text>
+            <Text style={[styles.menuTitle, { color: colors.primaryText }]}>
+              Scan History
+            </Text>
+            <Text style={[styles.menuSubtitle, { color: colors.mutedText }]}>
+              Review checks saved on this device
+            </Text>
           </View>
         </TouchableOpacity>
 
         <TouchableOpacity
-          style={styles.menuItem}
+          style={[styles.menuItem, { backgroundColor: colors.cardBackground }]}
           onPress={() => openScreen('about')}
         >
           <Text style={styles.menuIcon}>ℹ️</Text>
           <View style={styles.menuTextBox}>
-            <Text style={styles.menuTitle}>About Satarkly</Text>
-            <Text style={styles.menuSubtitle}>Understand what Satarkly does</Text>
+            <Text style={[styles.menuTitle, { color: colors.primaryText }]}>
+              About Satarkly
+            </Text>
+            <Text style={[styles.menuSubtitle, { color: colors.mutedText }]}>
+              Understand what Satarkly does
+            </Text>
+          </View>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.menuItem, { backgroundColor: colors.cardBackground }]}
+          onPress={toggleTheme}
+        >
+          <Text style={styles.menuIcon}>{mode === 'dark' ? '☀️' : '🌙'}</Text>
+          <View style={styles.menuTextBox}>
+            <Text style={[styles.menuTitle, { color: colors.primaryText }]}>
+              {mode === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            </Text>
+            <Text style={[styles.menuSubtitle, { color: colors.mutedText }]}>
+              Change app appearance
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -163,21 +200,38 @@ export default function App() {
         <View style={styles.header}>
           <View style={styles.headerTopRow}>
             <View style={styles.headerTextBox}>
-              <Text style={styles.appName}>Satarkly</Text>
-              <Text style={styles.tagline}>Check before you click.</Text>
+              <Text
+                style={[
+                  styles.appName,
+                  { color: mode === 'dark' ? '#ffffff' : '#0f172a' },
+                ]}
+              >
+                Satarkly
+              </Text>
+              <Text style={[styles.tagline, { color: colors.brand }]}>
+                Check before you click.
+              </Text>
             </View>
 
             <TouchableOpacity
-              style={styles.menuButton}
+              style={[
+                styles.menuButton,
+                { backgroundColor: colors.buttonBackground },
+              ]}
               onPress={() => setIsMenuOpen((currentValue) => !currentValue)}
             >
-              <Text style={styles.menuButtonText}>
+              <Text style={[styles.menuButtonText, { color: colors.buttonText }]}>
                 {isMenuOpen ? 'Close' : '☰ Menu'}
               </Text>
             </TouchableOpacity>
           </View>
 
-          <Text style={styles.description}>
+          <Text
+            style={[
+              styles.description,
+              { color: mode === 'dark' ? '#cbd5e1' : '#334155' },
+            ]}
+          >
             Paste a suspicious SMS, WhatsApp, or online message. Satarkly helps
             you decide whether to stop, verify, or stay careful.
           </Text>
@@ -213,8 +267,10 @@ export default function App() {
   }
 
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" />
+    <SafeAreaView
+      style={[styles.safeArea, { backgroundColor: colors.appBackground }]}
+    >
+      <StatusBar barStyle={mode === 'dark' ? 'light-content' : 'dark-content'} />
 
       <ScrollView
         contentContainerStyle={[
@@ -247,10 +303,17 @@ export default function App() {
   );
 }
 
+export default function App() {
+  return (
+    <ThemeProvider>
+      <SatarklyApp />
+    </ThemeProvider>
+  );
+}
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#0f172a',
   },
   container: {
     paddingBottom: 40,
@@ -273,38 +336,31 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   appName: {
-    color: '#ffffff',
     fontSize: 34,
     fontWeight: '900',
     letterSpacing: 0.5,
   },
   tagline: {
-    color: '#38bdf8',
     fontSize: 16,
     fontWeight: '800',
     marginTop: 5,
   },
   description: {
-    color: '#cbd5e1',
     fontSize: 14,
     lineHeight: 21,
     marginTop: 12,
   },
   menuButton: {
-    backgroundColor: '#e2e8f0',
     borderRadius: 16,
     paddingVertical: 10,
     paddingHorizontal: 13,
     marginTop: 3,
   },
   menuButtonText: {
-    color: '#0f172a',
     fontSize: 13,
     fontWeight: '900',
   },
   menuCard: {
-    backgroundColor: '#172033',
-    borderColor: '#263449',
     borderWidth: 1,
     borderRadius: 18,
     padding: 8,
@@ -312,7 +368,6 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   menuItem: {
-    backgroundColor: '#ffffff',
     borderRadius: 15,
     padding: 12,
     flexDirection: 'row',
@@ -328,12 +383,10 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   menuTitle: {
-    color: '#0f172a',
     fontSize: 14,
     fontWeight: '900',
   },
   menuSubtitle: {
-    color: '#64748b',
     fontSize: 12,
     fontWeight: '600',
     marginTop: 2,
