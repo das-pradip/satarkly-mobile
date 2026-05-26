@@ -15,6 +15,7 @@ import { PrivacyNoticeCard } from './src/components/PrivacyNoticeCard';
 import { ResultCard } from './src/components/ResultCard';
 import { analyzeMessage } from './src/core/detection/scamDetectionEngine';
 import { HistoryScreen } from './src/screens/HistoryScreen';
+import { SafetyTipsScreen } from './src/screens/SafetyTipsScreen';
 import { DetectionResult } from './src/types/detection.types';
 import { FeedbackValue, ScanHistoryItem } from './src/types/history.types';
 import {
@@ -26,7 +27,7 @@ import {
 } from './src/utils/historyStorage';
 import { CONTENT_MAX_WIDTH, getScreenPadding } from './src/utils/responsive';
 
-type AppScreen = 'check' | 'history';
+type AppScreen = 'check' | 'history' | 'safety';
 
 export default function App() {
   const [message, setMessage] = useState('');
@@ -116,12 +117,21 @@ export default function App() {
               <Text style={styles.tagline}>Check before you click.</Text>
             </View>
 
-            <TouchableOpacity
-              style={styles.historyButton}
-              onPress={() => setCurrentScreen('history')}
-            >
-              <Text style={styles.historyButtonText}>History</Text>
-            </TouchableOpacity>
+            <View style={styles.headerActions}>
+              <TouchableOpacity
+                style={styles.headerButton}
+                onPress={() => setCurrentScreen('safety')}
+              >
+                <Text style={styles.headerButtonText}>Tips</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.headerButton}
+                onPress={() => setCurrentScreen('history')}
+              >
+                <Text style={styles.headerButtonText}>History</Text>
+              </TouchableOpacity>
+            </View>
           </View>
 
           <Text style={styles.description}>
@@ -170,16 +180,20 @@ export default function App() {
         ]}
       >
         <View style={styles.content}>
-          {currentScreen === 'history' ? (
+          {currentScreen === 'history' && (
             <HistoryScreen
               history={history}
               onClearHistory={handleClearHistory}
               onDeleteHistoryItem={handleDeleteHistoryItem}
               onBackToCheck={() => setCurrentScreen('check')}
             />
-          ) : (
-            renderCheckScreen()
           )}
+
+          {currentScreen === 'safety' && (
+            <SafetyTipsScreen onBackToCheck={() => setCurrentScreen('check')} />
+          )}
+
+          {currentScreen === 'check' && renderCheckScreen()}
         </View>
       </ScrollView>
     </SafeAreaView>
@@ -229,14 +243,18 @@ const styles = StyleSheet.create({
     lineHeight: 22,
     marginTop: 12,
   },
-  historyButton: {
+  headerActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 4,
+  },
+  headerButton: {
     backgroundColor: '#e2e8f0',
     borderRadius: 14,
     paddingVertical: 10,
-    paddingHorizontal: 14,
-    marginTop: 4,
+    paddingHorizontal: 12,
   },
-  historyButtonText: {
+  headerButtonText: {
     color: '#0f172a',
     fontSize: 13,
     fontWeight: '900',
