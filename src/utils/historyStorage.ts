@@ -81,6 +81,21 @@ export async function updateScanFeedback(
   return updatedHistory;
 }
 
+export async function deleteScanHistoryItem(
+  scanId: string
+): Promise<ScanHistoryItem[]> {
+  const currentHistory = await loadScanHistory();
+
+  const updatedHistory = currentHistory.filter((item) => item.id !== scanId);
+
+  await AsyncStorage.setItem(
+    HISTORY_STORAGE_KEY,
+    JSON.stringify(updatedHistory)
+  );
+
+  return updatedHistory;
+}
+
 export async function clearScanHistory(): Promise<void> {
   await AsyncStorage.removeItem(HISTORY_STORAGE_KEY);
 }

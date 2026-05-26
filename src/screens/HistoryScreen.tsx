@@ -6,12 +6,14 @@ import { ScanHistoryItem } from '../types/history.types';
 interface HistoryScreenProps {
   history: ScanHistoryItem[];
   onClearHistory: () => void;
+  onDeleteHistoryItem: (scanId: string) => void;
   onBackToCheck: () => void;
 }
 
 export function HistoryScreen({
   history,
   onClearHistory,
+  onDeleteHistoryItem,
   onBackToCheck,
 }: HistoryScreenProps) {
   return (
@@ -29,7 +31,11 @@ export function HistoryScreen({
         </TouchableOpacity>
       </View>
 
-      <HistoryCard history={history} onClearHistory={onClearHistory} />
+      <HistoryCard
+        history={history}
+        onClearHistory={onClearHistory}
+        onDeleteHistoryItem={onDeleteHistoryItem}
+      />
     </View>
   );
 }

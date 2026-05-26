@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -30,14 +31,48 @@ function formatDateTime(value: string): string {
 interface HistoryCardProps {
   history: ScanHistoryItem[];
   onClearHistory: () => void;
+  onDeleteHistoryItem: (scanId: string) => void;
 }
 
 export function HistoryCard({
   history,
   onClearHistory,
+  onDeleteHistoryItem,
 }: HistoryCardProps) {
   const { width } = useWindowDimensions();
   const isMobile = isSmallScreen(width);
+
+  const [isClearConfirmVisible, setIsClearConfirmVisible] = useState(false);
+  const [deleteConfirmId, setDeleteConfirmId] = useState<string | null>(null);
+
+  function handleClearPress() {
+    setIsClearConfirmVisible(true);
+    setDeleteConfirmId(null);
+  }
+
+  function handleCancelClear() {
+    setIsClearConfirmVisible(false);
+  }
+
+  function handleConfirmClear() {
+    onClearHistory();
+    setIsClearConfirmVisible(false);
+    setDeleteConfirmId(null);
+  }
+
+  function handleDeletePress(scanId: string) {
+    setDeleteConfirmId(scanId);
+    setIsClearConfirmVisible(false);
+  }
+
+  function handleCancelDelete() {
+    setDeleteConfirmId(null);
+  }
+
+  function handleConfirmDelete(scanId: string) {
+    onDeleteHistoryItem(scanId);
+    setDeleteConfirmId(null);
+  }
 
   return (
     <View style={styles.historyCard}>
@@ -50,19 +85,39 @@ export function HistoryCard({
         </View>
 
         {history.length > 0 && (
-          <TouchableOpacity onPress={onClearHistory}>
-            <Text style={styles.clearHistoryText}>Clear</Text>
+          <TouchableOpacity onPress={handleClearPress}>
+            <Text style={styles.clearHistoryText}>Clear all</Text>
           </TouchableOpacity>
         )}
       </View>
+
+      {isClearConfirmVisible && (
+        <View style={styles.confirmBox}>
+          <Text style={styles.confirmTitle}>Clear all scan history?</Text>
+          <Text style={styles.confirmText}>
+            This will remove all saved checks from this device.
+          </Text>
+
+          <View style={styles.confirmActions}>
+            <TouchableOpacity style={styles.cancelButton} onPress={handleCancelClear}>
+              <Text style={styles.cancelButtonText}>Cancel</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity style={styles.dangerButton} onPress={handleConfirmClear}>
+              <Text style={styles.dangerButtonText}>Clear all</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {history.length === 0 ? (
         <Text style={styles.emptyHistoryText}>
           No scan history yet. Check a message to see it here.
         </Text>
       ) : (
-        history.slice(0, 5).map((item) => {
+        history.slice(0, 20).map((item) => {
           const itemTheme = getTheme(item.result.riskLevel);
+          const isDeleteConfirmVisible = deleteConfirmId === item.id;
 
           return (
             <View key={item.id} style={styles.historyItem}>
@@ -90,6 +145,39 @@ export function HistoryCard({
                 <Text style={styles.historyMeta}>{formatDateTime(item.createdAt)}</Text>
                 <Text style={styles.historyMeta}>{getFeedbackText(item.feedback)}</Text>
               </View>
+
+              {!isClearConfirmVisible && !isDeleteConfirmVisible && (
+                <TouchableOpacity
+                  style={styles.deleteSingleButton}
+                  onPress={() => handleDeletePress(item.id)}
+                >
+                  <Text style={styles.deleteSingleButtonText}>Delete this check</Text>
+                </TouchableOpacity>
+              )}
+
+              {isDeleteConfirmVisible && (
+                <View style={styles.deleteConfirmBox}>
+                  <Text style={styles.deleteConfirmText}>
+                    Delete this scan from history?
+                  </Text>
+
+                  <View style={styles.confirmActions}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={handleCancelDelete}
+                    >
+                      <Text style={styles.cancelButtonText}>Cancel</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={styles.dangerButton}
+                      onPress={() => handleConfirmDelete(item.id)}
+                    >
+                      <Text style={styles.dangerButtonText}>Delete</Text>
+                    </TouchableOpacity>
+                  </View>
+                </View>
+              )}
             </View>
           );
         })
@@ -131,6 +219,56 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '900',
     paddingTop: 3,
+  },
+  confirmBox: {
+    backgroundColor: '#fef2f2',
+    borderColor: '#fecaca',
+    borderWidth: 1,
+    borderRadius: 14,
+    padding: 12,
+    marginBottom: 10,
+  },
+  confirmTitle: {
+    color: '#7f1d1d',
+    fontSize: 14,
+    fontWeight: '900',
+    marginBottom: 4,
+  },
+  confirmText: {
+    color: '#991b1b',
+    fontSize: 12,
+    lineHeight: 18,
+    fontWeight: '600',
+  },
+  confirmActions: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 10,
+    flexWrap: 'wrap',
+  },
+  cancelButton: {
+    backgroundColor: '#ffffff',
+    borderColor: '#cbd5e1',
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  cancelButtonText: {
+    color: '#0f172a',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  dangerButton: {
+    backgroundColor: '#dc2626',
+    borderRadius: 12,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  dangerButtonText: {
+    color: '#ffffff',
+    fontSize: 12,
+    fontWeight: '900',
   },
   emptyHistoryText: {
     color: '#64748b',
@@ -182,5 +320,27 @@ const styles = StyleSheet.create({
     color: '#64748b',
     fontSize: 11,
     fontWeight: '700',
+  },
+  deleteSingleButton: {
+    marginTop: 8,
+    alignSelf: 'flex-start',
+  },
+  deleteSingleButtonText: {
+    color: '#dc2626',
+    fontSize: 12,
+    fontWeight: '900',
+  },
+  deleteConfirmBox: {
+    backgroundColor: '#fff7ed',
+    borderColor: '#fed7aa',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 10,
+    marginTop: 9,
+  },
+  deleteConfirmText: {
+    color: '#7c2d12',
+    fontSize: 12,
+    fontWeight: '800',
   },
 });

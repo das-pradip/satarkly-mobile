@@ -19,6 +19,7 @@ import { DetectionResult } from './src/types/detection.types';
 import { FeedbackValue, ScanHistoryItem } from './src/types/history.types';
 import {
   clearScanHistory,
+  deleteScanHistoryItem,
   loadScanHistory,
   saveScanResult,
   updateScanFeedback,
@@ -95,6 +96,16 @@ export default function App() {
     setFeedbackMessage('');
   }
 
+  async function handleDeleteHistoryItem(scanId: string) {
+    const updatedHistory = await deleteScanHistoryItem(scanId);
+    setHistory(updatedHistory);
+
+    if (currentScanId === scanId) {
+      setCurrentScanId(null);
+      setFeedbackMessage('');
+    }
+  }
+
   function renderCheckScreen() {
     return (
       <>
@@ -143,7 +154,7 @@ export default function App() {
           />
         )}
 
-        
+
       </>
     );
   }
@@ -163,6 +174,7 @@ export default function App() {
             <HistoryScreen
               history={history}
               onClearHistory={handleClearHistory}
+              onDeleteHistoryItem={handleDeleteHistoryItem}
               onBackToCheck={() => setCurrentScreen('check')}
             />
           ) : (
